@@ -1,0 +1,123 @@
+import React, { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, Button,Linking,TouchableOpacity,  Image } from 'react-native';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { RNCamera } from 'react-native-camera';
+import {AdMobInterstitial,AdMobBanner} from 'expo-ads-admob';
+
+async function ads() {
+  await AdMobInterstitial.setAdUnitID('ca-app-pub-6032612898827672/3037045507');
+  await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
+  await AdMobInterstitial.showAdAsync();
+}
+class app{
+bannerError(e){
+  alert(e);
+  
+}}
+
+export default function Sat() {
+  
+  
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(true);
+  const [side,setSide]=useState(RNCamera.Constants.Type.front)
+  const [text, setTxt] = useState('Tap to Scan');
+
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  const handleBarCodeScanned = ({data }) => {
+    setScanned(true);
+    Linking.openURL (data)
+  };
+  
+
+  if (hasPermission === null) {
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+  if (scanned==true) {
+    return (
+      <View style={styles.container}>
+  
+  
+  <TouchableOpacity Button onPress={() => {setScanned(false),setTxt('Tap To Scan Again')} } >
+  
+  
+                  
+      <Image
+            style={{height:60,width:60,alignSelf:'center',backgroundColor: 'rgba(255, 255, 255, 0.5)',borderRadius:10}}
+            source={{
+              uri:
+                'https://assets.stickpng.com/thumbs/585e4adacb11b227491c3392.png',
+            }}
+          />
+  </TouchableOpacity>
+  <Text> {text}  </Text>
+
+  
+  <View style={styles.adBanner}>
+  <AdMobBanner
+  bannerSize="fullBanner"
+  adUnitID="ca-app-pub-6032612898827672/6365297871" // Test ID, Replace with your-admob-unit-id
+  servePersonalizedAds // true or false
+  onDidFailToReceiveAdWithError={app.bannerError} />
+  </View>
+  <View style={styles.adBannerBottom}>
+  <AdMobBanner
+  bannerSize="fullBanner"
+  adUnitID="ca-app-pub-6032612898827672/8232079164" // Test ID, Replace with your-admob-unit-id
+  servePersonalizedAds // true or false
+  onDidFailToReceiveAdWithError={app.bannerError} />
+  </View>
+  
+      </View>
+    );
+  }
+  console.log(scanned)
+  ads();
+
+  return (
+    <View style={styles.container}>
+      <BarCodeScanner
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        focusDepth={10}
+        style={StyleSheet.absoluteFillObject}
+        defaultOnFocusComponent={true}
+        type={side}
+      />
+
+    <Image 
+style={{height:230,width:220,marginTop:200,alignSelf:'center',position: 'absolute',alignSelf:'center',borderRadius:70}}
+source={require("./assets/clipart2414277.png")}>
+  </Image>
+
+    </View>
+  );
+
+}
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal:-100,
+    marginVertical:- 50
+  },
+  adBanner:{
+    bottom:350
+  },
+  adBannerBottom:{
+    top:270
+  }
+
+});
